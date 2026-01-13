@@ -7,6 +7,7 @@ import joblib
 import pandas as pd
 from cyclopts import App
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
 
 app = App()
 

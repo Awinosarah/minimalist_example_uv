@@ -12,6 +12,26 @@ Before running this example, you need to have [uv](https://docs.astral.sh/uv/) i
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
+
+## Repository structure
+
+```
+.
+├── MLproject           # CHAP integration configuration
+├── main.py             # Core training and prediction logic
+├── pyproject.toml      # Python dependencies
+├── isolated_run.py     # Script for testing without CHAP
+├── input/              # Sample training and forecast data
+└── output/             # Generated models and predictions
+```
+
+### Key files
+
+- **MLproject**: Defines how CHAP interacts with your model (entry points, parameters)
+- **main.py**: Contains the `train` and `predict` commands
+- **pyproject.toml**: Lists your Python dependencies - uv uses this to create the virtual environment
+- **isolated_run.py**: Allows testing your model standalone, without CHAP
+
 No other setup is needed - `uv run` will automatically create the virtual environment and install dependencies on first use.
 
 ## Running the model without CHAP integration
@@ -71,7 +91,76 @@ def predict(model: str, historic_data: str, future_data: str, out_file: str):
     output_df.to_csv(out_file, index=False)
 ```
 
+## Making model alterations
+
+Here are some modifications you can try:
+
+### Change the model type
+
+Replace `LinearRegression` with a different sklearn model:
+
+```python
+# Original
+from sklearn.linear_model import LinearRegression
+reg = LinearRegression()
+
+# Try Ridge regression instead
+from sklearn.linear_model import Ridge
+reg = Ridge(alpha=1.0)
+```
+
+### Add or remove features
+
+Modify which columns are used as input features:
+
+```python
+# Original uses rainfall and mean_temperature
+features = df[["rainfall", "mean_temperature"]]
+
+# Try using only rainfall
+features = df[["rainfall"]]
+```
+
+### Add data preprocessing
+
+Add preprocessing steps like scaling:
+
+```python
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+features_scaled = scaler.fit_transform(features)
+```
+
+### Test your changes
+
+After making changes, run the isolated test to verify everything works:
+
+```bash
+uv run python isolated_run.py
+```
+
+Check that:
+- The script runs without errors
+- Output files are generated in the `output/` directory
+
+### Commit and push your changes
+
+Once your modifications work, save them to your fork:
+
+```bash
+git add .
+git commit -m "Modified model: [describe your change]"
+git push origin main
+```
+
 ## Running the minimalist model as part of CHAP
+
+Running your model through CHAP gives you several benefits:
+
+- You can easily run your model against standard evaluation datasets
+- You can share your model with others in a standard way
+- You can make your model accessible through the DHIS2 Modeling app
 
 To run the minimalist model in CHAP, we define the model interface in a YAML specification file called `MLproject`. This file specifies that the model uses uv for environment management (`uv_env: pyproject.toml`) and defines the train and predict entry points:
 
@@ -100,6 +189,13 @@ After you have installed chap-core ([installation instructions](https://dhis2-ch
 ```bash
 chap evaluate --model-name /path/to/minimalist_example_uv --dataset-name ISIMIP_dengue_harmonized --dataset-country brazil --report-filename report.pdf
 ```
+
+**Parameters:**
+
+- `--model-name`: Path to your local model directory (where MLproject is located)
+- `--dataset-name`: The evaluation dataset to use
+- `--dataset-country`: Country filter for the dataset
+- `--report-filename`: Output PDF report
 
 Or if you have a local CSV dataset:
 
