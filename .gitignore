@@ -1,9 +1,6 @@
-# Python cache
-__pycache__/
-
-# UV environment
+runs/
 .venv/
-
-# Generated outputs
+__pycache__/
 output/
-uv.lock
+*.pkl
+*.csv

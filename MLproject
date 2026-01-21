@@ -1,7 +1,5 @@
 name: minimalist_example_uv
 
-uv_env: pyproject.toml
-
 entry_points:
   train:
     parameters:
