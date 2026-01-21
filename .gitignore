@@ -1,0 +1,9 @@
+# Python cache
+__pycache__/
+
+# UV environment
+.venv/
+
+# Generated outputs
+output/
+uv.lock
