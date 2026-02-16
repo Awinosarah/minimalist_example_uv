@@ -1,18 +1,15 @@
-import argparse
-import joblib
-import pandas as pd
-from sklearn.linear_model import LinearRegression
-
-def train(train_data_path, model_path):
-    df = pd.read_csv(train_data_path)
-    # Only using rainfall as requested
-    features = df[["rainfall"]].fillna(0)
-    target = df["disease_cases"].fillna(0)
+def train(csv_fn, model_fn):
+    df = pd.read_csv(csv_fn)
+    features = ['rainfall', 'mean_temperature']
+    X = df[features]
+    Y = df['disease_cases']
+    # Replace missing values with mean
+    Y = Y.fillna(Y.mean())
 
     model = LinearRegression()
-    model.fit(features, target)
-    joblib.dump(model, model_path)
-    print(f"Model saved to {model_path}")
+    model.fit(X, Y)
+    joblib.dump(model, model_fn)
+    print(f"Model saved to {model_fn}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a disease prediction model")
